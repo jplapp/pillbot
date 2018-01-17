@@ -6,7 +6,7 @@ const moment = require('moment')
 const { status, updateStatus, TAKE_A_PILL } = require('./status')
 
 const MAX_PILL_TAKE_TIME = 4 // after 4 hours, give up for the day
-const NOTIFY_TIME = 0 // notify 'friend' after X hours
+const NOTIFY_TIME = 1 // notify 'friend' after X hours
         
 var that = null
 
