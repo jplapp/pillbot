@@ -18,7 +18,7 @@ const actions = new Actions(db, bot)
 bot.start((ctx) => {
   console.log('started:', ctx.from.id, ctx.from)
   db.createUser(ctx.from.id, ctx.from.first_name)
-  ctx.telegram.sendMessage(ctx.from.id, 'Welcome! Please choose a starting date', Extra.markup(actions.showCalendar()))
+  ctx.telegram.sendMessage(ctx.from.id, 'Welcome!  Please choose a starting date', Extra.markup(actions.showCalendar()))
   updateStatus(ctx.from.id, CHOOSE_DATE)
 })
 
