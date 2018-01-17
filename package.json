@@ -1,0 +1,19 @@
+{
+  "name": "pillbot",
+  "version": "1.0.0",
+  "description": "A bot that makes you take your pill",
+  "main": "server.js",
+  "dependencies": {
+    "moment": "^2.20.1",
+    "node-fetch": "^2.0.0-alpha.9",
+    "sqlite3": "^3.1.13",
+    "telegraf": "^3.17.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Johannes Plapp",
+  "license": "ISC"
+}
