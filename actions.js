@@ -60,6 +60,8 @@ module.exports = class {
         let start = moment.unix(user.start_date)
         let now = moment()
 
+        console.log('start', start, 'now', now, now.diff(start, 'hours'))
+
         // check if we should take a pill
         if(now.diff(start, 'days') % 28 < 21 && now.diff(start, 'hours') % 24 < MAX_PILL_TAKE_TIME){
             console.log('should take one')
@@ -77,7 +79,7 @@ module.exports = class {
     checkIfShouldNotify(user){
         let start = moment.unix(user.start_date)
         let now = moment()
-        console.log('difference in hours for notification: ', now.diff(start, 'hours') % 24)
+        console.log('start', start, 'difference in hours for notification: ', now.diff(start, 'hours') % 24)
         return (now.diff(start, 'hours') % 24 >= NOTIFY_TIME)
     }
     

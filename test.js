@@ -22,6 +22,10 @@ function test1(){
     let res1 = Actions.checkIfShouldTakePill(user, moment().subtract(1, 'hours').format())
     console.assert(res1 === false)
 
+    // pill taken 8 hours ago
+    let res1 = Actions.checkIfShouldTakePill(user, moment().subtract(8, 'hours').format())
+    console.assert(res1 === false)
+
     // pill taken yesterday -> true
     let res2 = Actions.checkIfShouldTakePill(user, moment().subtract(1, 'days').format())
     console.assert(res2 === true)
