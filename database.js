@@ -28,8 +28,12 @@ class DB {
          let d = moment()
 
          //if from previous month, substract one month
-         if(day > d.date())
+         if(day > d.date()){
             d.set('month', (d.month()+12-1) % 12)
+            if(d.month() == 11){
+                d.set('year', d.year()-1)  // go one year back from jan to dec
+            }
+         }
          d.set('date', day)
          d.set('hour', hours)
          d.set('minute', minutes)
