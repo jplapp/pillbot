@@ -24,7 +24,7 @@ class DB {
         })
      }
      
-     setStartDate(id, day, hours=20, minutes=0){
+     setStartDate(id, day, hours=17, minutes=0){
          let d = moment()
 
          //if from previous month, substract one month
