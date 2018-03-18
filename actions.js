@@ -2,6 +2,9 @@ const Extra = require('telegraf/extra')
 const Markup = require('telegraf/markup')
 
 const moment = require('moment')
+const PImage = require('pureimage');
+const fs = require('fs')
+const path = require('path')
 
 const { status, updateStatus, TAKE_A_PILL } = require('./status')
 
@@ -114,6 +117,99 @@ module.exports = class {
     notify(user){
         updateStatus(NOTIFY_USER_ID)
         this.bot.telegram.sendMessage(NOTIFY_USER_ID, 'Your friend '+user.name+' has not taken a pill for 2 hours now. You might want to let her know.')
+    }
+
+    getCycleOverview(user_id, resultCb){
+        
+        function pos(day){
+            const radius = 118
+            const centerX = 143
+            const centerY = 145
+            day -= 0.5
+            //day -= 11   // for some reason, it starts at the wrong point
+            let x = Math.sin(day / 28 * 3.14 * 2) * radius
+            let y = Math.cos(day / 28 * 3.14 * 2) * radius
+
+            x+=centerX
+            y+=centerY
+
+            y = 300-y
+            return {x, y}
+        }
+        function circle(ctx, center){
+            ctx.beginPath();
+            ctx.arc(center.x, center.y,10,0,Math.PI*2); // Outer circle
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        let takenDaysCb = (err, days) => {
+            console.log(days)
+            
+            // yeah. welcome to callback hell
+            function cb(err, user){
+                console.log('user is', user, user_id)
+    
+                let now = moment()
+                let start = moment.unix(user.start_date)
+                
+                let minDate = Math.floor(now.diff(start, 'days') / 28)
+                let takenDays = []
+                for(let i=0; i<days.length; i++){
+                    let ts = days[i].d 
+                    if(ts>15213939110)  // normalize
+                        ts /= 1000
+                    
+                    let dayInCycle = moment.unix(ts).diff(start, 'days') 
+                    if(dayInCycle < minDate)
+                        continue
+                    takenDays.push(dayInCycle % 28)         
+                }
+                console.log(takenDays)
+    
+                let dayInCycle = now.diff(start, 'days') % 28
+    
+                let img = fs.createReadStream(path.join(__dirname,"cycle.jpg"))
+                console.log(pos(dayInCycle), dayInCycle)
+                
+                PImage.decodeJPEGFromStream(img).then((img) => {
+                    console.log("size is",img.width,img.height);
+                    
+                    var img2 = PImage.make(300,300);
+                    var c = img2.getContext('2d');
+                    c.drawImage(img,
+                        0, 0, img.width, img.height, // source dimensions
+                        0, 0, 300, 300                 // destination dimensions
+                    );
+    
+                    for(let i=1; i<=dayInCycle; i++){
+                        if(takenDays.includes(i))     //yay, we took it, makes it green!
+                            c.fillStyle = 'rgba(0,150,0, 1)';
+                        else
+                            c.fillStyle = 'rgba(150,0,0, 1)';
+                        
+                            let curPos = pos(i)
+                        circle(c, curPos)
+                    }
+    
+                    //c.fillStyle = 'rgba(100,100,100,1)';
+                    //let curPos = pos(dayInCycle)
+                    //circle(c, curPos)
+                    
+                    var pth = "result.jpg";
+                    PImage.encodeJPEGToStream(img2,fs.createWriteStream(pth)).then(() => {
+                        let stream = fs.createReadStream(pth)   // we could omit saving and send it correctly. but who's got time for that?
+                        resultCb(stream)
+                        
+                    });
+                });
+            }
+
+            this.db.getUser(user_id, cb)
+        }
+
+        this.db.getAllTakenDates(user_id, takenDaysCb)
+        
     }
 
 

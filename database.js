@@ -48,9 +48,15 @@ class DB {
     getActiveUsers(cb){
         this.db.all('SELECT id, name, lang, start_date FROM users WHERE start_date is not NULL', cb)
     }
+    getUser(user_id, cb){
+        this.db.get('SELECT id, name, lang, start_date FROM users WHERE id=?', [user_id],cb)
+    }
 
     getLastTakenDate(id, cb){
         this.db.get('SELECT max(date) as d from log where id=?', [id], cb)
+    }
+    getAllTakenDates(id, cb){
+        this.db.all('SELECT date as d from log where id=? and taken=1', [id], cb)
     }
      
 }

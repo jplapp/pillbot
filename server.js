@@ -24,6 +24,7 @@ bot.start((ctx) => {
 
 bot.on('message', (ctx) => {
     console.log('received', ctx.message, ctx.from)
+    msg = ctx.message.text
     switch(status[ctx.from.id]){
         case CHOOSE_DATE: 
             day = parseInt(ctx.message.text)
@@ -58,23 +59,30 @@ bot.on('message', (ctx) => {
             break; */
 
         case TAKE_A_PILL:
-            msg = ctx.message.text
             if(msg=='👍'){
                 db.setPillTaken(ctx.from.id)
                 updateStatus(ctx.from.id)
 
-                
-                //let gifs = await gif.searchGif('yeah', 2)
-                //let randomGif = gifs[Math.floor(Math.random()*gifs.length)]
                 ctx.reply('awesome', actions.removeKeyboard)
                 ctx.telegram.sendDocument(ctx.from.id, {
-                    url: 'http://thecatapi.com/api/images/get?format=src&type=gif',//randomGif.itemurl,
+                    url: 'http://thecatapi.com/api/images/get?format=src&type=gif',
                     filename: 'awesome.gif'
                   })
             }
             break;
         default:
-            ctx.reply('I did not get that')        
+            if(msg.toLowerCase().indexOf('status') >= 0){
+                let re = (stream) => {
+                    ctx.replyWithPhoto({
+                        source: stream
+                    })
+                }
+                overview =  actions.getCycleOverview(ctx.from.id, re)
+
+
+            } else {
+                ctx.reply('I did not get that')        
+            }
     }
     
 })
@@ -83,6 +91,7 @@ bot.command('help', (ctx) => ctx.reply('Try send a sticker!'))
 bot.on('sticker', (ctx) => ctx.reply('👍'))
 
 bot.startPolling()
+
 
 // this is run every minute to check whether we should send some notification
 function checkLoop(){
