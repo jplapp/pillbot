@@ -46,10 +46,10 @@ class DB {
     }
 
     getActiveUsers(cb){
-        this.db.all('SELECT id, name, lang, start_date FROM users WHERE start_date is not NULL', cb)
+        this.db.all('SELECT id, name, lang, start_date, contact FROM users WHERE start_date is not NULL', cb)
     }
     getUser(user_id, cb){
-        this.db.get('SELECT id, name, lang, start_date FROM users WHERE id=?', [user_id],cb)
+        this.db.get('SELECT id, name, lang, start_date, contact FROM users WHERE id=?', [user_id],cb)
     }
 
     getLastTakenDate(id, cb){
@@ -57,6 +57,13 @@ class DB {
     }
     getAllTakenDates(id, cb){
         this.db.all('SELECT date as d from log where id=? and taken=1', [id], cb)
+    }
+
+    findUserByName(name, cb){
+        this.db.get("SELECT * from users where LOWER(name)=LOWER(?)", name, cb)
+    }
+    setUserContact(user_id, contact_user_id){
+        this.db.run("UPDATE users set contact=? where id=?", [contact_user_id, user_id])
     }
      
 }

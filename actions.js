@@ -8,12 +8,10 @@ const path = require('path')
 
 const { status, updateStatus, TAKE_A_PILL } = require('./status')
 
-const MAX_PILL_TAKE_TIME = 4 // after 4 hours, give up for the day
+const MAX_PILL_TAKE_TIME = 12 // after 4 hours, give up for the day
 const NOTIFY_TIME = 1 // notify 'friend' after X hours
         
 var that = null
-
-const NOTIFY_USER_ID = 178787954  // my telegram id, should be modified if used by other people
 
 module.exports = class {
 
@@ -115,8 +113,11 @@ module.exports = class {
     }
 
     notify(user){
-        updateStatus(NOTIFY_USER_ID)
-        this.bot.telegram.sendMessage(NOTIFY_USER_ID, 'Your friend '+user.name+' has not taken a pill for 2 hours now. You might want to let her know.')
+        console.log(user)
+        if(user.contact){
+            updateStatus(user.contact)
+            this.bot.telegram.sendMessage(user.contact, 'Your friend '+user.name+' has not taken a pill for an hour now. You might want to let her know!')
+        }
     }
 
     getCycleOverview(user_id, resultCb){

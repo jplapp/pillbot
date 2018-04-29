@@ -5,7 +5,6 @@ const Markup = require('telegraf/markup')
 
 const Actions = require('./actions')
 const DB = require('./database')
-const gif = require('./gifs')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const db = new DB('db.db')
@@ -18,8 +17,7 @@ const actions = new Actions(db, bot)
 bot.start((ctx) => {
   console.log('started:', ctx.from.id, ctx.from)
   db.createUser(ctx.from.id, ctx.from.first_name)
-  ctx.telegram.sendMessage(ctx.from.id, 'Welcome!  Please choose a starting date', Extra.markup(actions.showCalendar()))
-  updateStatus(ctx.from.id, CHOOSE_DATE)
+  ctx.reply('Hi '+ctx.from.first_name+'! Should I remind you to take your pill, or do you want to follow someone to help them?')
 })
 
 bot.on('message', (ctx) => {
@@ -32,7 +30,7 @@ bot.on('message', (ctx) => {
             if(day>0 && day<31) {
                 db.setStartDate(ctx.from.id, day)
                 updateStatus(ctx.from.id)
-                return ctx.reply("You're all set. I'll notify you in the evening", actions.removeKeyboard) 
+                return ctx.reply("You're all set. I'll notify you in the evening!", actions.removeKeyboard) 
                 /*return ctx.reply("If you want to, you can choose a contact that will be notified when you miss taking your pill", 
                     Extra.markup((markup) => {
                         return markup.resize()
@@ -44,19 +42,6 @@ bot.on('message', (ctx) => {
                 ctx.reply("Please choose a valid day")
             }
             break;
-
-            
-        // currently, in telegram this is not supported (requesting sharing of friend's contact)
-        /*case CHOOSE_CONTACT: 
-            console.log('chosen contact',  ctx.message)
-            if(day>0 && day<31) {
-                db.setStartDate(ctx.from.id, day)
-                updateStatus(ctx.from.id)
-                return ctx.reply("You're all set. I'll notify you in the evening", actions.removeKeyboard) 
-            } else {
-                ctx.reply("Please choose a valid contact")
-            }
-            break; */
 
         case TAKE_A_PILL:
             if(msg=='👍'){
@@ -71,24 +56,42 @@ bot.on('message', (ctx) => {
             }
             break;
         default:
-            if(msg.toLowerCase().indexOf('status') >= 0){
-                let re = (stream) => {
-                    ctx.replyWithPhoto({
-                        source: stream
-                    })
-                }
-                overview =  actions.getCycleOverview(ctx.from.id, re)
-
-
-            } else {
-                ctx.reply('I did not get that')        
+        if(msg.toLowerCase().indexOf('status') >= 0){
+            let re = (stream) => {
+                ctx.replyWithPhoto({
+                    source: stream
+                })
             }
+            overview =  actions.getCycleOverview(ctx.from.id, re)
+        }
+        if(msg.toLowerCase().indexOf('remind') >= 0){
+            ctx.telegram.sendMessage(ctx.from.id, 'OK. Please choose the starting date of your period: ', Extra.markup(actions.showCalendar()))
+            updateStatus(ctx.from.id, CHOOSE_DATE)  
+        }        
+        else if(msg.toLowerCase().indexOf('follow') >= 0){
+            let userIndex = msg.lastIndexOf(' ')
+            if(userIndex > 0){
+                let userName = msg.substring(userIndex+1)
+                let onUserFound = (err, user) => {
+                    console.log('user found', user)
+                    if(!user){
+                        ctx.reply('User '+userName+ ' not found. Please check that the name was spelled correctly and try again.')
+                    } else {
+                        db.setUserContact(user.id, ctx.from.id)
+                        ctx.reply('You will now receive alerts when ' + user.name + ' misses taking their pill.')
+                    }
+                }
+                let userToFollow = db.findUserByName(userName, onUserFound)
+            } else {
+                ctx.reply('Please enter a Telegram user name to follow, e.g. "follow Gerdigunde"')
+            }
+        }
+        else {
+        ctx.reply("Whoops, I'm just a bot! Even though I'm probably more clever than Siri, I did not get that.")        
+        }
     }
     
 })
-
-bot.command('help', (ctx) => ctx.reply('Try send a sticker!'))
-bot.on('sticker', (ctx) => ctx.reply('👍'))
 
 bot.startPolling()
 
