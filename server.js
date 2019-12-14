@@ -87,7 +87,7 @@ bot.on('message', (ctx) => {
             }
         }
         else {
-        ctx.reply("Whoops, I'm just a bot! Even though I'm probably more clever than Siri, I did not get that.")        
+        ctx.reply("Whoops, I'm just a bot! Even though I'm probably more clever than Siri, I did not understand that.")        
         }
     }
     
