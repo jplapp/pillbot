@@ -1,12 +1,12 @@
-const sqlite3 = require('sqlite3').verbose()
-const moment = require('moment')
+const sqlite3 = require('sqlite3').verbose();
+const moment = require('moment');
 
 // database
 
 class DB {
 
     constructor(filename){
-        this.db = new sqlite3.Database('db.db')
+        this.db = new sqlite3.Database('db.db');
 
         this.createTables()
     }
@@ -18,26 +18,26 @@ class DB {
 
     createUser(id, name){
         this.db.serialize(()=>{
-            this.db.run("delete from users where id =?", [id])
-            this.db.run("INSERT INTO users (id, name, lang) VALUES (?, ?, 'de')", [id, name])
+            this.db.run("delete from users where id =?", [id]);
+            this.db.run("INSERT INTO users (id, name, lang) VALUES (?, ?, 'de')", [id, name]);
             this.db.run("delete from log where id =?", [id])
         })
      }
      
      setStartDate(id, day, hours=17, minutes=0){
-         let d = moment()
+         let d = moment();
 
          //if from previous month, substract one month
          if(day > d.date()){
-            d.set('month', (d.month()+12-1) % 12)
+            d.set('month', (d.month()+12-1) % 12);
             if(d.month() == 11){
                 d.set('year', d.year()-1)  // go one year back from jan to dec
             }
          }
-         d.set('date', day)
-         d.set('hour', hours)
-         d.set('minute', minutes)
-         console.log('starting at', d.format())
+         d.set('date', day);
+         d.set('hour', hours);
+         d.set('minute', minutes);
+         console.log('starting at', d.format());
          this.db.run("UPDATE users set start_date=? where id=?", [d.unix(), id])
      }
 
@@ -68,4 +68,4 @@ class DB {
      
 }
 
-module.exports = DB
+module.exports = DB;
