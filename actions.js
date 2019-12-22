@@ -123,7 +123,7 @@ module.exports = class {
         }
     }
 
-    getCycleOverview(user_id, resultCb){
+    sendCycleOverview(user_id, resultCb){
         
         function pos(day){
             const radius = 118;
