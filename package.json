@@ -4,7 +4,7 @@
   "description": "A bot that makes you take your pill",
   "main": "server.js",
   "dependencies": {
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "node-fetch": "^2.6.0",
     "pureimage": "^0.1.6",
     "sqlite3": "^4.1.1",
